@@ -10,11 +10,13 @@ export type ConnectionOptions = {
 export const connectX = (connectionOptions: Partial<ConnectionOptions>) => {
   const socketString = `/tmp/.X11-unix/X${connectionOptions.displayId ?? 0}`;
   const client$ = new Subject<XClientConnectionEvent>();
-  createConnection(socketString)
+  const connection = createConnection(socketString)
     .on('connect', () => client$.next({ type: 'connect' }))
     .on('close', (hadError) => {
       client$.next({ type: 'disconnect', hadError });
     })
     .on('data', (data) => {
+      console.log(data.toString());
     });
+  return () => connection.end();
 };
